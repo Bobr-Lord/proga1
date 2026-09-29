@@ -1,10 +1,21 @@
 #include "DynamicArray.h"
 #include <iostream>
 #include <algorithm>
+#include <new>
+#include <stdexcept>
+#include <string>
+
+int* DynamicArray::newArray(size_t size) {
+    int* ptr = new (std::nothrow) int[size]();
+    if (!ptr) {
+        throw std::bad_alloc();
+    }
+    return ptr;
+}
 
 DynamicArray::DynamicArray(size_t size) {
     this->size_ = size;
-    this->data_ = new int[size]();
+    this->data_ = newArray(size);
 }
 DynamicArray::~DynamicArray() {
     delete[] data_;
@@ -12,7 +23,7 @@ DynamicArray::~DynamicArray() {
 
 DynamicArray::DynamicArray(const DynamicArray& other) {
     this->size_ = other.size_;
-    this->data_ = new int[other.size_];
+    this->data_ = newArray(other.size_);
     for (size_t index = 0; index < other.size_; index++) {
         this->data_[index] = other.data_[index];
     }
@@ -36,33 +47,28 @@ void DynamicArray::print() const {
     std::cout << "]" << std::endl;
 }
 
-bool DynamicArray::set(size_t index, int value) {
+void DynamicArray::set(size_t index, int value) {
     if (index >= size_) {
-        std::cout << "Ошибка: индекс " << index << " вне границ массива\n";
-        return false;
+        throw std::out_of_range("индекс " + std::to_string(index) + " вне границ массива");
     }
     if (!isValueValid(value)) {
-        std::cout << "Ошибка: значение " << value << " вне диапазона [-100; 100]\n";
-        return false;
+        throw std::invalid_argument("значение " + std::to_string(value) + " вне диапазона [-100; 100]");
     }
     data_[index] = value;
-    return true;
 }
 
 int DynamicArray::get(size_t index) const {
     if (index >= size_) {
-        std::cout << "Ошибка: индекс " << index << " вне границ массива\n";
-        return 0;
+        throw std::out_of_range("индекс " + std::to_string(index) + " вне границ массива");
     }
     return data_[index];
 }
 
 void DynamicArray::push_back(int value) {
     if (!isValueValid(value)) {
-        std::cout << "Ошибка: значение " << value << " вне диапазона [-100; 100]\n";
-        return;
+        throw std::invalid_argument("значение " + std::to_string(value) + " вне диапазона [-100; 100]");
     }
-    int* new_data = new int[size_+1];
+    int* new_data = newArray(this->size_+1);
     for (size_t index = 0; index < size_; index++) {
         new_data[index] = this->data_[index];
     }

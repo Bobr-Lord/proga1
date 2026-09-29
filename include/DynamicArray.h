@@ -10,7 +10,7 @@ public:
     size_t size() const;
     void print() const;
 
-    bool set(size_t index, int value);
+    void set(size_t index, int value);
     int get(size_t index) const;
 
     void push_back(int value);
@@ -20,4 +20,5 @@ private:
     int* data_;
     size_t size_;
     bool isValueValid(int value) const;
+    static int* newArray(size_t size);
 };
