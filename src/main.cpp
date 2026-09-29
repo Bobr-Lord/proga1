@@ -1,46 +1,51 @@
 #include "DynamicArray.h"
 #include <iostream>
-#include <new>
 #include <stdexcept>
+#include <string>
+#include <typeinfo>
 
 int main() {
-    DynamicArray a(3);
+    std::cout << "Задание 1" << std::endl;
+    DynamicArray<int> a(3);
     a.set(0, 10);
     a.set(1, 20);
     a.set(2, 30);
-    a.push_back(40);
-    a.print();
-
-    std::cout << "\nstd::out_of_range" << std::endl;
     try {
-        a.set(10, 1);
-    } catch (const std::out_of_range& e) {
-        std::cout << "set: " << e.what() << std::endl;
-    }
-    try {
-        a.get(10);
-    } catch (const std::out_of_range& e) {
-        std::cout << "get: " << e.what() << std::endl;
-    }
-
-    std::cout << "\nstd::invalid_argument" << std::endl;
-    try {
-        a.set(0, 150);
+        a.set(0, 500);
     } catch (const std::invalid_argument& e) {
-        std::cout << "set: " << e.what() << std::endl;
+        std::cout << "int: " << e.what() << std::endl;
     }
-    try {
-        a.push_back(-500);
-    } catch (const std::invalid_argument& e) {
-        std::cout << "push_back: " << e.what() << std::endl;
-    }
-    a.print();
 
-    std::cout << "\nstd::bad_alloc" << std::endl;
+    DynamicArray<double> d(2);
+    d.set(0, 500.5);
+    d.set(1, -1000.25);
+
+    DynamicArray<std::string> s(0);
+    s.push_back("hello");
+    s.push_back("world");
+
+    std::cout << "\nЗадание 2" << std::endl;
+    std::cout << "int:    " << a << std::endl;
+    std::cout << "double: " << d << std::endl;
+    std::cout << "string: " << s << std::endl;
+
+    std::cout << "\nЗадание 3" << std::endl;
+    DynamicArray<int> p(2);
+    DynamicArray<int> q(2);
+    q.set(0, 3);
+    q.set(1, 4);
+    std::cout << "distance(" << p << ", " << q << ") = " << p.distance(q) << std::endl;
+
     try {
-        DynamicArray huge(1000000000000ULL);
-    } catch (const std::bad_alloc& e) {
-        std::cout << "конструктор: " << e.what() << std::endl;
+        a.distance(p);
+    } catch (const std::invalid_argument& e) {
+        std::cout << "invalid_argument: " << e.what() << std::endl;
+    }
+
+    try {
+        s.distance(s);
+    } catch (const std::bad_typeid& e) {
+        std::cout << "bad_typeid: " << e.what() << std::endl;
     }
 
     return 0;
