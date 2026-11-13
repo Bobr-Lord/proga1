@@ -11,6 +11,28 @@
 template <typename T>
 class DynamicArray {
 public:
+    class Reference {
+    public:
+        Reference(DynamicArray& array, size_t index) : array_(array), index_(index) {}
+
+        Reference& operator=(const T& value) {
+            array_.set(index_, value);
+            return *this;
+        }
+
+        Reference& operator=(const Reference& other) {
+            return *this = static_cast<T&>(other);
+        }
+
+        operator T&() const {
+            return array_.data_[index_];
+        }
+
+    private:
+        DynamicArray& array_;
+        size_t index_;
+    };
+
     explicit DynamicArray(size_t size) {
         this->size_ = size;
         this->data_ = newArray(size);
@@ -53,6 +75,76 @@ public:
             throw std::out_of_range("индекс " + std::to_string(index) + " вне границ массива");
         }
         return data_[index];
+    }
+
+    Reference operator[](size_t index) {
+        if (index >= size_) {
+            throw std::out_of_range("индекс " + std::to_string(index) + " вне границ массива");
+        }
+        return Reference(*this, index);
+    }
+
+    const T& operator[](size_t index) const {
+        if (index >= size_) {
+            throw std::out_of_range("индекс " + std::to_string(index) + " вне границ массива");
+        }
+        return data_[index];
+    }
+
+    bool operator==(const DynamicArray& other) const {
+        if (size_ != other.size_) {
+            return false;
+        }
+        for (size_t index = 0; index < size_; index++) {
+            if (data_[index] != other.data_[index]) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    bool operator!=(const DynamicArray& other) const {
+        return !(*this == other);
+    }
+
+    DynamicArray& operator+=(const DynamicArray& other) {
+        add(other);
+        return *this;
+    }
+
+    DynamicArray& operator-=(const DynamicArray& other) {
+        sub(other);
+        return *this;
+    }
+
+    DynamicArray& operator+=(const T& value) {
+        for (size_t index = 0; index < size_; index++) {
+            data_[index] += value;
+        }
+        return *this;
+    }
+
+    DynamicArray& operator-=(const T& value) {
+        for (size_t index = 0; index < size_; index++) {
+            data_[index] -= value;
+        }
+        return *this;
+    }
+
+    T* begin() {
+        return data_;
+    }
+
+    T* end() {
+        return data_ + size_;
+    }
+
+    const T* begin() const {
+        return data_;
+    }
+
+    const T* end() const {
+        return data_ + size_;
     }
 
     void push_back(const T& value) {
