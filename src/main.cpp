@@ -3,6 +3,11 @@
 #include <stdexcept>
 #include <string>
 #include <typeinfo>
+#include <utility>
+
+DynamicArray<int> passByValue(DynamicArray<int> value) {
+    return value;
+}
 
 int main() {
     std::cout << "Задание 1" << std::endl;
@@ -100,6 +105,38 @@ int main() {
         std::cout << x << " ";
     }
     std::cout << std::endl;
+
+    std::cout << "\nЧасть 5. Задания 1-3" << std::endl;
+    DynamicArray<int> original(2);
+    original[0] = 7;
+    original[1] = 9;
+    DynamicArray<int> copyAssigned(0);
+    copyAssigned = original;
+    copyAssigned = copyAssigned;
+    std::cout << "После копирующего присваивания: " << copyAssigned << std::endl;
+
+    DynamicArray<int> moveAssigned(1);
+    moveAssigned = std::move(copyAssigned);
+    std::cout << "После move-присваивания: " << moveAssigned << std::endl;
+    std::cout << "Размер источника: " << copyAssigned.size() << std::endl;
+    DynamicArray<int>& self = moveAssigned;
+    moveAssigned = std::move(self);
+    std::cout << "После самоприсваивания move: " << moveAssigned << std::endl;
+
+    std::cout << "\nЧасть 5. Задание 4" << std::endl;
+    DynamicArray<int> transferSource(3);
+    transferSource[0] = 4;
+    transferSource[1] = 5;
+    transferSource[2] = 6;
+    std::cout << "До копирования, источник: " << transferSource << std::endl;
+    DynamicArray<int> copied = passByValue(transferSource);
+    std::cout << "После копирования, источник: " << transferSource << std::endl;
+    std::cout << "Копия: " << copied << std::endl;
+
+    std::cout << "До move, источник: " << transferSource << std::endl;
+    DynamicArray<int> moved = passByValue(std::move(transferSource));
+    std::cout << "После move, размер источника: " << transferSource.size() << std::endl;
+    std::cout << "Результат move: " << moved << std::endl;
 
     return 0;
 }

@@ -2,7 +2,6 @@
 #include <algorithm>
 #include <cstddef>
 #include <iostream>
-#include <new>
 #include <stdexcept>
 #include <string>
 #include <type_traits>
@@ -35,7 +34,7 @@ public:
 
     explicit DynamicArray(size_t size) {
         this->size_ = size;
-        this->data_ = newArray(size);
+        this->data_ = new T[size]();
     }
 
     ~DynamicArray() {
@@ -44,10 +43,44 @@ public:
 
     DynamicArray(const DynamicArray& other) {
         this->size_ = other.size_;
-        this->data_ = newArray(other.size_);
+        this->data_ = new T[other.size_]();
         for (size_t index = 0; index < other.size_; index++) {
             this->data_[index] = other.data_[index];
         }
+    }
+
+    DynamicArray& operator=(const DynamicArray& other) {
+        if (this == &other) {
+            return *this;
+        }
+
+        T* new_data = new T[other.size_]();
+        for (size_t index = 0; index < other.size_; index++) {
+            new_data[index] = other.data_[index];
+        }
+
+        delete[] data_;
+        data_ = new_data;
+        size_ = other.size_;
+        return *this;
+    }
+
+    DynamicArray(DynamicArray&& other) noexcept : data_(other.data_), size_(other.size_) {
+        other.data_ = nullptr;
+        other.size_ = 0;
+    }
+
+    DynamicArray& operator=(DynamicArray&& other) noexcept {
+        if (this == &other) {
+            return *this;
+        }
+
+        delete[] data_;
+        data_ = other.data_;
+        size_ = other.size_;
+        other.data_ = nullptr;
+        other.size_ = 0;
+        return *this;
     }
 
     size_t size() const{
@@ -150,7 +183,7 @@ public:
     void push_back(const T& value) {
         checkValue(value);
 
-        T* new_data = newArray(this->size_+1);
+        T* new_data = new T[this->size_ + 1]();
         for (size_t index = 0; index < size_; index++) {
             new_data[index] = this->data_[index];
         }
@@ -212,13 +245,5 @@ private:
                 throw std::invalid_argument("значение " + std::to_string(value) + " вне диапазона [-100; 100]");
             }
         }
-    }
-
-    static T* newArray(size_t size) {
-        T* ptr = new (std::nothrow) T[size]();
-        if (!ptr) {
-            throw std::bad_alloc();
-        }
-        return ptr;
     }
 };
